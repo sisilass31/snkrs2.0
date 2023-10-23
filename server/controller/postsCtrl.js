@@ -116,4 +116,7 @@ router.delete("/:id", async (req, res) => {
     return res.status(400).json({ message: "erreur lors de la suppression" });
   }
 });
+
+
+
 module.exports = router;

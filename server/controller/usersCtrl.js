@@ -6,43 +6,16 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 const { User } = require("../models");
-const validator = require("validator");
 const saltRounds = 10;
-const regexPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{12,}$/; //CNIL
+
+const validator = require("validator");
+const regexPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{12,}$/; 
 
 router.use(cors());
-
-//get all users
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.findAll(); //findAll = SELECT * FROM User
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Bah ça marche pas" });
-  }
-});
-
-//get one user
-router.get("/:id", async (req, res) => {
-  const usersId = req.params.id;
-
-  try {
-    const user = await User.findByPk(usersId);
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: "Utilisateur pas trouver" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Bah ça marche pas" });
-  }
-});
-
 //register
 router.post("/register", async (req, res) => {
   const { nom, prenom, email, password } = req.body;
+  console.log(req.body);
 
   try {
     if (nom == "" || prenom == "" || email == "" || password == "") {
@@ -94,38 +67,23 @@ router.post("/register", async (req, res) => {
 //login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } =
-      req.body; /* on récupère les données des champs */
+    const { email, password } = req.body; 
     if (email == "" || password == "") {
-      return res
-        .status(500)
-        .json({ message: "Veuillez remplir tous les champs." });
-    } /* si l'un des champs est vide alors on lui demande le faire */
+      return res.status(500).json({ message: "Veuillez remplir tous les champs." });
+    } 
     const user = await User.findOne({ where: { email: email } });
-    /* recherche un user dans la bdd ayant l'email spécifié. */
-    /* findone: requête sql qui revient à dire: SELECT email FROM users */
     if (user) {
-      /* vérifie si un user correspondant à l'email spécifié a été trouvé dans la bdd. */
       const password_valid = await bcrypt.compare(password, user.password);
-      /* on utilise "compare" de manière asynchrone le mdp fourni par le user avec le mdp haché stocké dans
-              la bdd pour le user correspondant. */
       if (password_valid) {
-        token = jwt.sign(
-          {
+        token = jwt.sign({
             id: user.id,
             email: user.email,
             prenom: user.prenom,
             nom: user.nom,
             is_admin: user.is_admin,
-          },
-          process.env.secret
+          }, process.env.secret
         );
-        return res
-          .status(200)
-          .json({ token: token }); /* JWT (JSON Web Token) pour créer un jeton
-                  d'authentification. ce jeton contient les informations du user telles que son ID, email,
-                  prénom, nom et le statut d'administrateur. il est signé à l'aide d'une clé secrète stockée dans
-                  la variable "process.env.SECRET" */
+        return res.status(200).json({ token: token, redirect: '/' }); 
       } else {
         return res.status(400).json({ error: "Password Incorrect" });
       }
@@ -192,6 +150,37 @@ router.delete("/:id", async (req, res) => {
     return res.status(400).json({ message: "erreur lors de la suppression" });
   }
 });
+
+//get all users
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.findAll(); //findAll = SELECT * FROM User
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Bah ça marche pas" });
+  }
+});
+
+//get one user
+router.get("/:id", async (req, res) => {
+  const usersId = req.params.id;
+
+  try {
+    const user = await User.findByPk(usersId);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: "Utilisateur pas trouver" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Bah ça marche pas" });
+  }
+});
+
+
+
 
 
 module.exports = router;
