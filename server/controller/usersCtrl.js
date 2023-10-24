@@ -63,25 +63,36 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ success: false, error: "Error registering user" });
   }
 });
-
 //login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body; 
+    const { email, password } = req.body;
+    /* on récupère les données des champs */
     if (email == "" || password == "") {
       return res.status(500).json({ message: "Veuillez remplir tous les champs." });
-    } 
+    } /* si l'un des champs est vide alors on lui demande le faire */
     const user = await User.findOne({ where: { email: email } });
+    /* recherche un user dans la bdd ayant l'email spécifié. */
+    /* findone: requête sql qui revient à dire: SELECT email FROM users */
     if (user) {
+      /* vérifie si un user correspondant à l'email spécifié a été trouvé dans la bdd. */
       const password_valid = await bcrypt.compare(password, user.password);
+      /* on utilise "compare" de manière asynchrone le mdp fourni par le user avec le mdp haché stocké dans
+      la bdd pour le user correspondant. */
       if (password_valid) {
+      /*si la variable password_valid est évaluée à true. si c'est le cas, le code à l'intérieur de cette
+      condition sera exécuté. */
         token = jwt.sign({
+          /* génère un jeton JWT en utilisant une bibliothèque ou un module appelé jwt. Le contenu du token est
+          un objet JSON qui contient des informations sur l'utilisateur: */
             id: user.id,
             email: user.email,
             prenom: user.prenom,
             nom: user.nom,
             is_admin: user.is_admin,
+            /*telles que son ID, son email, son prénom, son nom et s'il est un administrateur */
           }, process.env.secret
+          /*le jeton est signé à l'aide d'une clé secrète stockée dans la variable d'environnement process.env.SECRET */
         );
         return res.status(200).json({ token: token, redirect: '/' }); 
       } else {

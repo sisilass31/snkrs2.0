@@ -42,7 +42,7 @@ router.post("/create", async (req, res) => {
       return res
         .status(500)
         .json({ message: "Veuillez remplir tous les champs." });
-    }
+    } /* verification: si les champs sont bien remplis alors on créer un */
 
     const newPost = await Post.create({
       title: title,

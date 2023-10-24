@@ -15,6 +15,7 @@ import axios from "axios";
 function App() {
   const [user, setUser] = useState({})
   const token = localStorage.getItem('token');
+  
 
   useEffect(()=>{
     const user = async() => {
@@ -32,6 +33,7 @@ function App() {
     }
   }, [token])
   return (
+    
     <MDBContainer fluid style={{ margin: 0, padding: 0 }}>
       <MDBCard className="text-black m-5" style={{ borderRadius: "25px" }}>
         <MDBCardBody>
@@ -45,6 +47,10 @@ function App() {
                 post
               </p>
 
+              {token ? (
+              
+
+             
               <Formik
                 initialValues={{
                   title: "",
@@ -131,6 +137,14 @@ function App() {
                   </div>
                 </Form>
               </Formik>
+              ) : ( 
+                <div>
+                  <p>Please log in to post.</p>
+          
+                 </div>
+              )}
+
+              
             </MDBCol>
 
           </MDBRow>

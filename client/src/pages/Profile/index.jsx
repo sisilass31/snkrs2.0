@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react'
 import {
   MDBBtn,
   MDBContainer,
-  MDBRow,
   MDBCol,
   MDBCard,
   MDBCardBody,
-  MDBCardImage,
   MDBInput,
   MDBIcon,
-  MDBCheckbox,
 } from "mdb-react-ui-kit";
 import axios from 'axios';
 import jwtDecode from 'jwt-decode'
@@ -84,12 +81,8 @@ function App() {
                         password: values.password,
                       }
                     );
-                      console.log(response.data)
-
-                    const token = response.data.token;
-                    localStorage.setItem("token", token);
                     setSubmitting(false);
-                    alert('modification effectué, vous allez être redirigé afin de vous connecter avec vos nouveaux identifiants!')
+                    alert('modification effectué!')
                     navigate("/login");
                   } catch (error) {
                     console.error("Error:", error);

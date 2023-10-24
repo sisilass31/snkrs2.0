@@ -1,179 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import { Link } from 'react-router-dom';
+import React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import { useNavigate } from "react-router-dom";
 
-const pages = ['Home', 'Register', 'Login', 'Profile', 'Logout'];
+export default function ButtonAppBar() {
+  const Navigate = useNavigate();
+  const hasToken = localStorage.getItem("token");
 
-function ResponsiveAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [userToken, setUserToken] = useState(null);
-
-  useEffect(() => {
-    const tokenFromLocalStorage = localStorage.getItem('token');
-    if (tokenFromLocalStorage) {
-      setUserToken(tokenFromLocalStorage);
-    }
-  }, []);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUserToken(null);
+  const Logout = () => {
+    localStorage.removeItem("token");
+    window.location.reload();
+    Navigate("/login");
   };
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component={Link}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            SNKRS
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <span
+              onClick={() => {
+                Navigate("/")
+                window.location.reload();
+              }}
+              style={{ cursor: "pointer", textDecoration: "none", color: "black" }}
+            >
+              SNKRS
+            </span>
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' },
-              }}
-            >
-              {pages.map((page) => {
-                if (page === 'Logout' && userToken) {
-                  return (
-                    <MenuItem key={page} onClick={() => { handleLogout(); handleCloseNavMenu(); }}>
-                      {/* //Changer la redirection apres un logout  */}
-                      <Link to="/login" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        {page}
-                      </Link>
-                    </MenuItem>
-                  );
-                }
-                if ((page === 'Register' || page === 'Login') && !userToken) {
-                  return (
-                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Typography component={Link} to={"/" + page} textAlign="center">
-                        {page}
-                      </Typography>
-                    </MenuItem>
-                );
-                }
-                if (page !== 'Register' && page !== 'Login' && (userToken || page === 'Profile')) {
-                  return (
-                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Typography component={Link} to={"/" + page} textAlign="center">
-                        {page}
-                      </Typography>
-                    </MenuItem>
-                  );
-                }
-                return null;
-              })}
-            </Menu>
-          </Box>
-          <Typography
-            variant="h5"
-            noWrap
-            component={Link}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            SNKRS
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            {!hasToken ? null : (
+              <span
+                onClick={() => {
+                  Navigate("/profile")
+                  window.location.reload();
+                }}
+                style={{ cursor: "pointer", textDecoration: "none", color: "black" }}
+              >
+                Profile
+              </span>
+            )}
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => {
-              if ((page === 'Register' || page === 'Login') && !userToken) {
-                return (
-                  <Button
-                    key={page}
-                    component={Link}
-                    to={"/" + page}
-                    onClick={handleCloseNavMenu}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                  >
-                    {page}
-                  </Button>
-                );
-              }
-              if (page !== 'Register' && page !== 'Login' && (userToken || page === 'Profile')) {
-                return (
-                  <Button
-                    key={page}
-                    component={Link}
-                    to={"/" + page}
-                    onClick={handleCloseNavMenu}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                  >
-                    {page}
-                  </Button>
-                );
-              }
-              return null;
-            })}
-          </Box>
+
+          {hasToken ? (
+            <>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Button
+                  onClick={Logout}
+                  style={{ textDecoration: "none", color: "black" }}
+                >
+                  Logout
+                </Button>
+              </Typography>
+            </>
+          ) : (
+            <>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <span
+                  onClick={() => Navigate("/register")}
+                  style={{ cursor: "pointer", textDecoration: "none", color: "black" }}
+                >
+                  Register
+                </span>
+              </Typography>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <span
+                  onClick={() => Navigate("/login")}
+                  style={{ cursor: "pointer", textDecoration: "none", color: "black" }}
+                >
+                  Login
+                </span>
+              </Typography>
+            </>
+          )}
         </Toolbar>
-      </Container>
-    </AppBar>
+      </AppBar>
+    </Box>
   );
 }
-
-export default ResponsiveAppBar;
