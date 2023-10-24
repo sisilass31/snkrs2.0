@@ -1,18 +1,30 @@
-import React from 'react'
-import { UseState, UseEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import {
+  MDBBtn,
+  MDBContainer,
+  MDBRow,
+  MDBCol,
+  MDBCard,
+  MDBCardBody,
+  MDBCardImage,
+  MDBInput,
+  MDBIcon,
+  MDBCheckbox,
+} from "mdb-react-ui-kit";
 import axios from 'axios';
 import jwtDecode from 'jwt-decode'
 import { Formik, Field, Form, ErrorMessage } from "formik";
-
+import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
+import Navbar from '../../components/Navbar'
+import Footer from '../../components/Footer'
 
 const regexPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\d]).{12,}$/;
 
 const validationSchema = Yup.object({
   email: Yup.string()
-    .email("Votre adresse email est invalide")
-    .required("Veuillez remplir le champ"),
+    .email("Votre adresse email est invalide"),
   password: Yup.string()
-    .required("Veuillez remplir le champ")
     .matches(
       regexPassword,
       "Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial, et doit avoir au moins 12 caractères"
@@ -21,19 +33,41 @@ const validationSchema = Yup.object({
 
 function App() {
   const navigate = useNavigate();
+  const [user, setUser] = useState({})
+  const token = localStorage.getItem('token');
+
+  useEffect(()=>{
+    const user = async() => {
+      try {
+        if(token){
+          const decoded = jwtDecode(token)
+          setUser(decoded)
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } 
+    if(token){
+      user()
+    }
+  }, [token])
+
   return (
-    <MDBContainer fluid>
-      <MDBCard className="text-black m-5" style={{ borderRadius: "25px" }}>
+    <MDBContainer fluid  style={{ margin: 0, padding: 0 }}>
+
+    <Navbar/>
+      <MDBCard>
+        <p className="text-center h1 fw-bold mb-2 mx-1 mx-md-4 mt-4">
+          profile
+        </p>
+      <MDBCard className="text-black m-3" style={{ borderRadius: "25px" }}>
+      
         <MDBCardBody>
-          <MDBRow>
-            <MDBCol
+          <MDBCol
               md="10"
               lg="6"
-              className="order-2 order-lg-1 d-flex flex-column align-items-center"
+              className="d-flex flex-column align-items-center"
             >
-              <p className="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
-                login
-              </p>
 
               <Formik
                 initialValues={{
@@ -44,7 +78,7 @@ function App() {
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
                     const response = await axios.put(
-                      "http://localhost:3306/user/:id",
+                      `http://localhost:3306/user/${user.id}`,
                       {
                         email: values.email,
                         password: values.password,
@@ -55,8 +89,8 @@ function App() {
                     const token = response.data.token;
                     localStorage.setItem("token", token);
                     setSubmitting(false);
-                    
-                    navigate("/");
+                    alert('modification effectué, vous allez être redirigé afin de vous connecter avec vos nouveaux identifiants!')
+                    navigate("/login");
                   } catch (error) {
                     console.error("Error:", error);
                     setSubmitting(false);
@@ -109,7 +143,7 @@ function App() {
                   </div>
 
                   <MDBBtn type="submit" className="mb-4" size="lg">
-                    Register
+                    Update
                   </MDBBtn>
                   <div className="d-flex flex-end">
                     <ErrorMessage
@@ -121,21 +155,44 @@ function App() {
                 </Form>
               </Formik>
             </MDBCol>
-
-            <MDBCol
+          <MDBCol
               md="10"
               lg="6"
-              className="order-1 order-lg-2 d-flex align-items-center"
+              className="d-flex flex-column align-items-center"
             >
-              <MDBCardImage
-                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
-                fluid
-              />
+              <Formik
+                onSubmit={async (values, { setSubmitting }) => {
+                  try {
+                    const response = await axios.delete(
+                      `http://localhost:3306/user/${user.id}`,
+                    );
+                      console.log(response.data)
+
+                    const token = response.data.token;
+                    localStorage.setItem("token", token);
+                    setSubmitting(false);
+                    navigate("/register");
+                  } catch (error) {
+                    console.error("Error:", error);
+                    setSubmitting(false);
+                  }
+                }}
+              >
+                <Form>
+                <MDBCardBody>{`${user.prenom} ${user.nom}`}</MDBCardBody>
+                  <MDBBtn type="submit" className="mb-4" size="lg">
+                    supprimer le compte
+                  </MDBBtn>
+                </Form>
+              </Formik>
             </MDBCol>
-          </MDBRow>
+          
         </MDBCardBody>
       </MDBCard>
+      </MDBCard>
+      <Footer/>
     </MDBContainer>
+    
   );
 }
 

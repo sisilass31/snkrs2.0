@@ -14,6 +14,9 @@ import {
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Navbar from '../../components/Navbar'
+import Footer from '../../components/Footer'
 
 const regexPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\d]).{12,}$/;
 
@@ -32,17 +35,19 @@ const validationSchema = Yup.object({
 });
 
 function App() {
+  const navigate = useNavigate();
   return (
-    <MDBContainer fluid>
+    <MDBContainer fluid  style={{ margin: 0, padding: 0 }}>
+    <Navbar/>
       <MDBCard className="text-black m-5" style={{ borderRadius: "25px" }}>
         <MDBCardBody>
-          <MDBRow>
+          <MDBRow className="justify-content-center">
             <MDBCol
               md="10"
               lg="6"
               className="order-2 order-lg-1 d-flex flex-column align-items-center"
             >
-              <p className="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+              <p className="text-center h1 fw-bold mb-4 mx-1 mx-md-4 mt-4">
                 register
               </p>
 
@@ -64,10 +69,11 @@ function App() {
                         email: values.email,
                         password: values.password,
                       }
-                    );
+                    ); navigate("/login");
                   } catch (error) {
                     console.error("Error:", error);
                     setSubmitting(false);
+                    
                   }
                 }}
               >
@@ -194,6 +200,7 @@ function App() {
           </MDBRow>
         </MDBCardBody>
       </MDBCard>
+      <Footer/>
     </MDBContainer>
   );
 }

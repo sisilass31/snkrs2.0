@@ -34,7 +34,7 @@ router.get("/:id", async (req, res) => {
 //create
 router.post("/create", async (req, res) => {
   try {
-    const { title, description } =
+    const { title, description  , userId} =
     req.body; /* on récupère les données des champs */
     const image = req.file;
 

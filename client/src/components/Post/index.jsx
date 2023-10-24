@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from 'react'
 import {
   MDBBtn,
   MDBContainer,
@@ -6,72 +6,66 @@ import {
   MDBCol,
   MDBCard,
   MDBCardBody,
-  MDBCardImage,
   MDBInput,
-  MDBIcon,
-  MDBCheckbox,
 } from "mdb-react-ui-kit";
 import { Formik, Field, Form, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import jwtDecode from 'jwt-decode'
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Navbar from '../../components/Navbar'
-import Footer from '../../components/Footer'
-
-const regexPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\d]).{12,}$/;
-
-const validationSchema = Yup.object({
-  email: Yup.string()
-    .email("Votre adresse email est invalide")
-    .required("Veuillez remplir le champ"),
-  password: Yup.string()
-    .required("Veuillez remplir le champ")
-    .matches(
-      regexPassword,
-      "Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial, et doit avoir au moins 12 caractères"
-    ),
-});
 
 function App() {
-  const navigate = useNavigate();
+  const [user, setUser] = useState({})
+  const token = localStorage.getItem('token');
+
+  useEffect(()=>{
+    const user = async() => {
+      try {
+        if(token){
+          const decoded = jwtDecode(token)
+          setUser(decoded)
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } 
+    if(token){
+      user()
+    }
+  }, [token])
   return (
-    
-    <MDBContainer fluid  style={{ margin: 0, padding: 0 }}>
-      <Navbar/>
+    <MDBContainer fluid style={{ margin: 0, padding: 0 }}>
       <MDBCard className="text-black m-5" style={{ borderRadius: "25px" }}>
         <MDBCardBody>
-          <MDBRow  className="justify-content-center">
+          <MDBRow className="justify-content-center">
             <MDBCol
               md="10"
               lg="6"
               className="order-2 order-lg-1 d-flex flex-column align-items-center"
             >
               <p className="text-center h1 fw-bold mb-4 mx-1 mx-md-4 mt-4">
-                login
+                post
               </p>
 
               <Formik
                 initialValues={{
-                  email: "",
-                  password: "",
+                  title: "",
+                  description: "",
+                  pictures: "",
+                  userId: `${user.id}`,
                 }}
-                validationSchema={validationSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
                     const response = await axios.post(
-                      "http://localhost:3306/user/login",
+                      "http://localhost:3306/post/create",
                       {
-                        email: values.email,
-                        password: values.password,
+                        title: values.title,
+                        pictures: values.pictures,
+                        description: values.description,
+                        userId: `${user.id}`,
                       }
                     );
-                      console.log(response.data)
-
-                    const token = response.data.token;
-                    localStorage.setItem("token", token);
+                    console.log(response.data);
                     setSubmitting(false);
-                    
-                    navigate("/");
+
                   } catch (error) {
                     console.error("Error:", error);
                     setSubmitting(false);
@@ -81,12 +75,11 @@ function App() {
                 <Form>
                   <div className="d-flex flex-column align-items-center mb-2">
                     <div className="d-flex flex-row align-items-center mb-2">
-                      <MDBIcon fas icon="envelope me-3" size="lg" />
-                      <Field type="email" name="email" >
+                      <Field type="text" name="title">
                         {({ field }) => (
                           <>
                             <MDBInput
-                              label="Your Email"
+                              label="Votre titre"
                               id="form3"
                               {...field}
                             />
@@ -96,7 +89,7 @@ function App() {
                     </div>
                     <div className="d-flex flex-end">
                       <ErrorMessage
-                        name="email"
+                        name="title"
                         component="div"
                         className="text-danger"
                       />
@@ -105,18 +98,21 @@ function App() {
 
                   <div className="d-flex flex-column align-items-center mb-2">
                     <div className="d-flex flex-row align-items-center mb-2">
-                      <MDBIcon fas icon="lock me-3" size="lg" />
-                      <Field type="password" name="password">
+                      <Field type="text" name="description">
                         {({ field }) => (
                           <>
-                            <MDBInput label="Password" id="form4" type="password" {...field} />
+                            <MDBInput
+                              label="Votre description"
+                              id="form4"
+                              {...field}
+                            />
                           </>
                         )}
                       </Field>
                     </div>
                     <div className="d-flex flex-end">
                       <ErrorMessage
-                        name="password"
+                        name="description"
                         component="div"
                         className="text-danger d-flex flex-end"
                       />
@@ -124,7 +120,7 @@ function App() {
                   </div>
 
                   <MDBBtn type="submit" className="mb-4" size="lg">
-                    log in
+                    poster
                   </MDBBtn>
                   <div className="d-flex flex-end">
                     <ErrorMessage
@@ -137,20 +133,9 @@ function App() {
               </Formik>
             </MDBCol>
 
-            <MDBCol
-              md="10"
-              lg="6"
-              className="order-1 order-lg-2 d-flex align-items-center"
-            >
-              <MDBCardImage
-                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
-                fluid
-              />
-            </MDBCol>
           </MDBRow>
         </MDBCardBody>
       </MDBCard>
-      <Footer/>
     </MDBContainer>
   );
 }

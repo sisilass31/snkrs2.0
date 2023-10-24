@@ -1,3 +1,24 @@
 body {
   font-family: Roboto, Helvetica, Arial, sans-serif;
 }
+
+.css-hip9hq-MuiPaper-root-MuiAppBar-root {
+  background-color: #727053 !important;
+}
+
+a:hover {
+  color: #aeab7d !important;
+}
+
+.btn-primary {
+  --mdb-btn-bg: #727053 !important;
+}
+
+.btn:hover {
+  background-color: #827f5c !important;
+  border-color: #727053 !important;
+}
+
+.css-1q39md6-MuiButtonBase-root-MuiButton-root:hover {
+  background-color: transparent !important;
+}
